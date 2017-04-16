@@ -1,26 +1,65 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import shallowCompare from 'react-addons-shallow-compare';
 import Modal from 'react-modal';
+import MdContentCopy from 'react-icons/lib/md/content-copy';
+import MdSave from 'react-icons/lib/md/save';
+import MdClose from 'react-icons/lib/md/close';
 
 const style = {
   overlay: {
+    background: 'rgba(0, 0, 0, 0.5)',
     zIndex: 100
   },
   content: {
     overflow: 'hidden',
     left: '25%',
-    height: 10,
-    width: '50%',
-    display: 'flex',
-    alignItems: 'center'
+    width: '50%'
   }
 };
 
-const formStyle = {
-  flex: 1,
-  display: 'flex',
-  justifyContent: 'space-around',
-  alignItems: 'center'
+const inputStyle = {
+  marginTop: 10,
+  padding: '5px 10px',
+  height: 'calc(100% - 75px)',
+  border: '1px solid #ddd',
+  fontFamily: 'Monaco, Consolas, monospace',
+  fontSize: 12,
+  overflow: 'scroll'
+};
+
+const toolbarStyle = {
+  marginTop: -5
+};
+
+const headingStyle = {
+  marginBottom: 10,
+  fontSize: 20,
+  fontFamily: 'Monaco, Consolas, monospace'
+};
+
+const buttonStyle = {
+  marginRight: 5,
+  padding: '5px 10px',
+  fontFamily: 'Monaco, Consolas, monospace',
+  fontSize: 12,
+  background: '#eee',
+  border: '1px solid #ddd'
+};
+
+const closeButtonStyle = {
+  ...buttonStyle,
+  marginRight: 0,
+  float: 'right'
+};
+
+const buttonStyleDisabled = {
+  ...buttonStyle,
+  opacity: 0.5
+};
+
+const iconStyle = {
+  margin: '-2px 5px 0 0'
 };
 
 export default class InputModal extends Component {
@@ -40,13 +79,15 @@ export default class InputModal extends Component {
     super(props);
 
     this.state = {
-      appState: props.appState
+      appState: props.appState,
+      input: props.appState
     };
 
     this.onInputChange = this.onInputChange.bind(this);
-    this.onModalOpen = this.onModalOpen.bind(this);
     this.onRequestClose = this.onRequestClose.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
+    this.selectInputContents = this.selectInputContents.bind(this);
+    this.deselectInputContents = this.deselectInputContents.bind(this);
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -54,29 +95,30 @@ export default class InputModal extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let onModalOpen;
-    if (!this.props.isOpen && nextProps.isOpen) {
-      onModalOpen = true;
-    }
     this.setState({
-      appState: nextProps.appState
-    }, () => {
-      if (onModalOpen) {
-        this.onModalOpen();
-      }
+      appState: nextProps.appState,
+      input: nextProps.appState
     });
   }
 
   onInputChange(e) {
-    this.setState({ appState: e.target.value });
+    this.setState({ input: e.target.textContent });
   }
 
-  onModalOpen() {
-    this.modalInput.setSelectionRange(0, this.modalInput.value.length);
+  selectInputContents() {
+    const range = document.createRange();
+    range.selectNodeContents(this.modalInput);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+
+  deselectInputContents() {
+    const selection = window.getSelection();
+    selection.removeAllRanges();
   }
 
   onRequestClose() {
-    this.props.onSubmit(this.state.appState);
     this.props.closeModal();
   }
 
@@ -86,17 +128,66 @@ export default class InputModal extends Component {
     }
   }
 
+  renderInputAsJson() {
+    try {
+      return JSON.stringify(JSON.parse(this.state.input), null, 2);
+    } catch (e) {
+      return null;
+    }
+  }
+
   render() {
     return (
       <Modal style={style} isOpen={this.props.isOpen} onRequestClose={this.onRequestClose} contentLabel={this.props.contentLabel}>
-        <div style={formStyle}>
-          <input ref={(ref) => this.modalInput = ref}
-            style={{ flex: 10 }}
-            onChange={this.onInputChange}
-            value={this.state.appState}
+        <div style={toolbarStyle}>
+          <div style={headingStyle}>Redux App State</div>
+          <button
+            style={buttonStyle}
+            onClick={() => {
+              this.selectInputContents();
+              document.execCommand('copy');
+              this.deselectInputContents();
+              this.modalInput.blur();
+            }}
+          >
+            <MdContentCopy style={iconStyle} />
+            Copy to clipboard
+          </button>
+
+          <button
+            style={this.state.input === this.state.appState ?
+              buttonStyleDisabled : buttonStyle}
+            onClick={() => {
+              this.setState({ appState: this.state.input });
+              this.props.onSubmit(this.state.input);
+              this.props.closeModal();
+            }}
+            disabled={this.state.input === this.state.appState}
+          >
+            <MdSave style={iconStyle} />
+            Save and Close
+          </button>
+          <button
+            style={closeButtonStyle}
+            onClick={this.props.closeModal}
+          >
+            <MdClose style={iconStyle} />
+            Close
+          </button>
+        </div>
+
+        <div style={{ height: '100%' }}>
+          <pre
+            contentEditable
+            suppressContentEditableWarning
+            ref={(ref) => this.modalInput = ref}
+            style={inputStyle}
+            onInput={this.onInputChange}
             onKeyDown={this.onKeyDown}
-          />
-          <button style={{ flex: 1 }} onClick={this.props.closeModal}>Cancel</button>
+            onFocus={this.selectInputContents}
+          >
+            {this.renderInputAsJson()}
+          </pre>
         </div>
       </Modal>
     );

@@ -1,2 +1,2 @@
-import ImportExportMonitor from './ImportExportMonitor';
-export default ImportExportMonitor;
+import ImportExportTool from './ImportExportTool';
+export default ImportExportTool;

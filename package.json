@@ -1,5 +1,5 @@
 {
-  "name": "redux-import-export-monitor",
+  "name": "redux-import-export-tool",
   "version": "1.0.0",
   "description": "Redux DevTools monitor for copying state/action log to clipboard as well as pasting it back in.",
   "main": "lib/index.js",
@@ -10,7 +10,7 @@
     "test": "NODE_ENV=test mocha --compilers js:babel/register --recursive",
     "test:watch": "NODE_ENV=test mocha --compilers js:babel/register --recursive --watch",
     "test:cov": "babel-node ./node_modules/.bin/isparta cover ./node_modules/.bin/_mocha -- --recursive",
-    "prepublish": "npm run lint && npm run test && npm run clean && npm run build",
+    "prepare": "npm run lint && npm run test && npm run clean && npm run build",
     "cz": "git add . && git cz",
     "czp": "npm run cz && git push",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
@@ -49,13 +49,15 @@
     "semantic-release": "^4.3.5"
   },
   "peerDependencies": {
-    "react": "^0.14.0 || ^15.0.0",
-    "react-dom": "^0.14.0 || ^15.0.0",
+    "react": "^0.14.0 || ^15.0.0 || ^16.0.0",
+    "react-dom": "^0.14.0 || ^15.0.0 || ^16.0.0",
     "redux-devtools": "^3.0.0"
   },
   "dependencies": {
     "parse-key": "^0.2.1",
+    "prop-types": "^15.6.1",
     "react-addons-shallow-compare": "^0.14.0 || ^15.0.0",
+    "react-icons": "^2.2.3",
     "react-modal": "^1.1.2"
   },
   "config": {

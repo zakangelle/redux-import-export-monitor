@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import shallowCompare from 'react-addons-shallow-compare';
 import { ActionCreators } from 'redux-devtools';
 import parseKey from 'parse-key';
@@ -8,7 +9,7 @@ const { importState } = ActionCreators;
 import reducer from './reducers';
 import InputModal from './InputModal';
 
-export default class ImportExportMonitor extends Component {
+export default class ImportExportTool extends Component {
   static update = reducer;
 
   constructor(props) {
@@ -39,12 +40,12 @@ export default class ImportExportMonitor extends Component {
     skippedActionIds: PropTypes.array,
     nextActionId: PropTypes.number,
     select: PropTypes.func.isRequired,
-    openModalKey: PropTypes.string
+    toggleModalKey: PropTypes.string
   };
 
   static defaultProps = {
     select: (state) => state,
-    openModalKey: 'meta-shift-e'
+    toggleModalKey: 'meta-shift-e'
   };
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -70,11 +71,11 @@ export default class ImportExportMonitor extends Component {
   }
 
   handleKeyPress(e) {
-    const modalKey = parseKey(this.props.openModalKey);
+    const modalKey = parseKey(this.props.toggleModalKey);
 
     if (this.matchesKey(modalKey, e)) {
       e.preventDefault();
-      this.setState({ inputOpen: true });
+      this.setState({ inputOpen: !this.state.inputOpen });
     }
   }
 

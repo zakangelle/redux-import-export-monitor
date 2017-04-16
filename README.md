@@ -35,7 +35,7 @@ Use ```cmd-shift-e``` (or your preferred key-binding) to open the monitor, which
 
 Name                  | Description
 -------------         | -------------
-`openModalKey`        | A string (see [parse-key](https://github.com/thlorenz/parse-key)) to be used to open the monitor.
+`toggleModalKey`      | A string (see [parse-key](https://github.com/thlorenz/parse-key)) to be used to open the monitor.
 
 ### License
 
